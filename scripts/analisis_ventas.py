@@ -1,32 +1,68 @@
-import pandas as pd  # Librería para leer CSV
-import matplotlib.pyplot as plt  # Librería para crear gráficos
+# =============================================================================
+# Script: analisis_ventas.py
+# Descripción: Análisis de ventas a partir de un dataset CSV.
+#              Calcula indicadores clave y genera un gráfico de evolución temporal.
+# Autor: P2 - Paco (desarrollo inicial), P3 - Luis (revisión y documentación)
+# =============================================================================
 
-# Leer archivo CSV
-df = pd.read_csv('datos/dataset.csv')  # Guardar en "df"
+import pandas as pd          # Manipulación y análisis de datos tabulares
+import matplotlib.pyplot as plt  # Generación de gráficos y visualizaciones
 
-# Indicadores básicos
-print("="*40 + " ANÁLISIS DE VENTAS " + "="*40 + "\n")
-print(f"Ventas totales: ${df['sales_amount'].sum():,.2f}")
-print(f"Venta promedio diaria: ${df['sales_amount'].mean():,.2f}")
-print(f"Venta máxima: ${df['sales_amount'].max():,.2f}")
-print(f"Venta mínima: ${df['sales_amount'].min():,.2f}")
+# -----------------------------------------------------------------------------
+# Carga de datos
+# Se lee el archivo CSV desde la carpeta /datos y se almacena en un DataFrame.
+# Un DataFrame es una tabla similar a una planilla de cálculo.
+# -----------------------------------------------------------------------------
 
-# Ventas por mes
-df['sales_date'] = pd.to_datetime(df['sales_date'])  # Convertir la columna de fecha a formate datetime
-df['mes'] = df['sales_date'].dt.month  # Extraer número del mes en nueva columna
-ventas_por_mes = df.groupby('mes')['sales_amount'].sum() # Agrupar ventas por mes y calcular la suma total
+df = pd.read_csv('datos/dataset.csv')
 
-print("\n" + "="*42 + " VENTAS POR MES " + "="*42 + "\n")
+# -----------------------------------------------------------------------------
+# Indicadores generales de ventas
+# Se calculan métricas de resumen sobre la columna 'sales_amount',
+# que representa el monto de cada venta registrada.
+# -----------------------------------------------------------------------------
+
+print("=" * 40 + " ANÁLISIS DE VENTAS " + "=" * 40 + "\n")
+print(f"Ventas totales:          ${df['sales_amount'].sum():,.2f}")
+print(f"Venta promedio:          ${df['sales_amount'].mean():,.2f}")
+print(f"Venta máxima registrada: ${df['sales_amount'].max():,.2f}")
+print(f"Venta mínima registrada: ${df['sales_amount'].min():,.2f}")
+
+# -----------------------------------------------------------------------------
+# Análisis de ventas por mes
+# Se convierte la columna 'sales_date' al tipo datetime para poder extraer
+# componentes de fecha (año, mes, día) de forma precisa.
+# Luego se agrupa por número de mes y se suman los montos de cada grupo.
+# -----------------------------------------------------------------------------
+
+df['sales_date'] = pd.to_datetime(df['sales_date'])  # Conversión a tipo datetime
+df['mes'] = df['sales_date'].dt.month                # Extracción del número de mes (1-12)
+ventas_por_mes = df.groupby('mes')['sales_amount'].sum()  # Sumatoria de ventas agrupadas por mes
+
+print("\n" + "=" * 42 + " VENTAS POR MES " + "=" * 42 + "\n")
 print(ventas_por_mes)
 
-# Gráfico de evolución de ventas
-plt.figure(figsize=(10, 5))  # Crear figura del gráfico
-plt.plot(df['sales_date'], df['sales_amount'], marker='o', color='blue')  # Graficar evolución temporal de las ventas
-plt.title('Evolución de Ventas')  # Título
-plt.xlabel('Fecha')  # "Fecha" en posición horizontal del gráfico
-plt.ylabel('Monto de Ventas')  # "Monto de ventas" en posición vertical del gráfico
-plt.xticks(rotation=45)  # Rotar las fechas del eje X 45° para mejor legibilidad
-plt.tight_layout()  # Ajustar los márgenes del gráfico
-plt.savefig('resultados/grafico_ventas.png')  # Guardar el gráfico como imagen en la carpeta de resultados
+# -----------------------------------------------------------------------------
+# Generación del gráfico de evolución temporal
+# Se grafica el monto de cada venta en función de su fecha, permitiendo
+# visualizar tendencias y variaciones a lo largo del tiempo.
+# -----------------------------------------------------------------------------
 
-print("\nGráfico guardado en /resultados")
+plt.figure(figsize=(10, 5))
+
+plt.plot(
+    df['sales_date'],
+    df['sales_amount'],
+    marker='o',    # Marca cada punto de dato con un círculo
+    color='blue',
+    linewidth=1.5  # Grosor de la línea de conexión entre puntos
+)
+
+plt.title('Evolución de Ventas')
+plt.xlabel('Fecha')
+plt.ylabel('Monto de Ventas ($)')     # Se agrega la unidad monetaria al eje Y
+plt.xticks(rotation=45)               # Rotación de 45° para evitar superposición de fechas
+plt.tight_layout()                    # Ajuste automático de márgenes para evitar recortes
+plt.savefig('resultados/grafico_ventas.png')     # Se guarda el gráfico como imagen PNG en /resultados
+
+print("\nGráfico guardado correctamente en: resultados/grafico_ventas.png")
